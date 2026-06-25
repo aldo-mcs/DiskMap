@@ -5,11 +5,25 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <SupportedOSPlatform>windows</SupportedOSPlatform>
+    <Company>Acsoft</Company>
+    <Copyright>Copyright © Acsoft</Copyright>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <!-- No telemetry/crash reporting to symbolicate against, so shipping a .pdb in the installer
+         serves no purpose for end users — install-size only, Debug builds keep symbols. -->
+    <DebugType>none</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.9" />
-    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
+    <!-- .Core (not the full Microsoft.Data.Sqlite package) so we can pick the native provider
+         ourselves below — the full package otherwise drags in SQLitePCLRaw.bundle_e_sqlite3
+         regardless of what's referenced explicitly. -->
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.9" />
+    <!-- DiskMap is Windows-only (net10.0-windows, WPF), so it relies on the winsqlite3.dll already
+         built into Windows 10 1903+/11 instead of bundling a native e_sqlite3.dll — saves ~2MB
+         of install size for zero functional cost; only basic SQL (no FTS/JSON) is used. -->
+    <PackageReference Include="SQLitePCLRaw.bundle_winsqlite3" Version="2.1.11" />
     <PackageReference Include="System.IO.Hashing" Version="10.0.9" />
   </ItemGroup>
 

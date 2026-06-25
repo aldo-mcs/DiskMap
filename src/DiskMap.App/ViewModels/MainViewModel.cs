@@ -46,6 +46,11 @@ public sealed partial class MainViewModel : ObservableObject
     public event Func<string, string, string, bool>? ConfirmRequested;
 
     [ObservableProperty] private NodeViewModel? _selectedRow;
+
+    /// <summary>All rows currently selected in the storage tree (Extended selection mode). Kept in
+    /// sync from the view's ListView.SelectionChanged — bulk actions (Reveal, Open, Copy Path,
+    /// Recycle, Archive) operate over this rather than the single <see cref="SelectedRow"/>.</summary>
+    private List<NodeViewModel> _selectedRows = [];
     [ObservableProperty] private FileSystemNode? _treemapRoot;
     [ObservableProperty] private FileSystemNode? _treemapSelectedNode;
     [ObservableProperty] private bool _isSunburstView;
@@ -332,6 +337,13 @@ public sealed partial class MainViewModel : ObservableObject
 
     // ---------------- Selection sync ----------------
 
+    /// <summary>Called by the view whenever the storage tree's multi-selection changes.</summary>
+    public void UpdateSelectedRows(IReadOnlyList<NodeViewModel> rows)
+    {
+        _selectedRows = rows.ToList();
+        UpdateCommandStates();
+    }
+
     partial void OnSelectedRowChanged(NodeViewModel? value)
     {
         UpdateCommandStates();
@@ -554,45 +566,62 @@ public sealed partial class MainViewModel : ObservableObject
 
     // ---------------- Cleanup actions ----------------
 
-    [RelayCommand(CanExecute = nameof(HasSelection))]
-    private void Reveal() => Try(() => FileActions.RevealInExplorer(SelectedRow!.Node.Path));
+    /// <summary>The rows an action should apply to: the full multi-selection when there is one,
+    /// falling back to the single tree-bound <see cref="SelectedRow"/> (e.g. right after a scan,
+    /// before the view has reported any ListView selection).</summary>
+    private List<NodeViewModel> ActionTargets =>
+        _selectedRows.Count > 0 ? _selectedRows : SelectedRow is { } row ? [row] : [];
 
     [RelayCommand(CanExecute = nameof(HasSelection))]
-    private void Open() => Try(() => FileActions.Open(SelectedRow!.Node.Path));
+    private void Reveal() => Try(() => FileActions.RevealInExplorer(ActionTargets[0].Node.Path));
+
+    [RelayCommand(CanExecute = nameof(HasSelection))]
+    private void Open() => Try(() =>
+    {
+        foreach (var row in ActionTargets)
+            FileActions.Open(row.Node.Path);
+    });
 
     [RelayCommand(CanExecute = nameof(HasSelection))]
     private void OpenPrompt()
     {
-        var node = SelectedRow!.Node;
+        var node = ActionTargets[0].Node;
         string dir = node.IsDirectory ? node.Path : Path.GetDirectoryName(node.Path) ?? node.Path;
         Try(() => FileActions.OpenCommandPromptHere(dir));
     }
 
     [RelayCommand(CanExecute = nameof(HasSelection))]
-    private void CopyPath() => Try(() => Clipboard.SetText(SelectedRow!.Node.Path));
+    private void CopyPath() => Try(() => Clipboard.SetText(string.Join(Environment.NewLine, ActionTargets.Select(r => r.Node.Path))));
 
     [RelayCommand(CanExecute = nameof(HasSelection))]
     private async Task RecycleAsync()
     {
-        var node = SelectedRow!.Node;
-        bool confirmed = ConfirmRequested?.Invoke("Send to Recycle Bin?",
-            $"{node.Path}\n{Formatting.Bytes(node.Size)}", "Send to Recycle Bin") ?? false;
+        var targets = ActionTargets;
+        long totalSize = targets.Sum(r => r.Node.Size);
+        string title = targets.Count == 1 ? "Send to Recycle Bin?" : $"Send {targets.Count} items to Recycle Bin?";
+        string message = targets.Count == 1
+            ? $"{targets[0].Node.Path}\n{Formatting.Bytes(targets[0].Node.Size)}"
+            : $"{targets.Count} items\n{Formatting.Bytes(totalSize)} total";
+        bool confirmed = ConfirmRequested?.Invoke(title, message, "Send to Recycle Bin") ?? false;
         if (!confirmed) return;
 
-        bool ok = FileActions.SendToRecycleBin(node.Path);
-        StatusText = ok ? $"Sent to Recycle Bin: {node.Name}" : $"Could not recycle: {node.Name}";
+        bool ok = FileActions.SendToRecycleBin(targets.Select(r => r.Node.Path));
+        StatusText = ok
+            ? targets.Count == 1 ? $"Sent to Recycle Bin: {targets[0].Node.Name}" : $"Sent {targets.Count} items to Recycle Bin."
+            : "Could not recycle one or more items.";
         if (ok) await RescanAsync();
     }
 
     [RelayCommand(CanExecute = nameof(HasSelection))]
     private async Task ArchiveAsync()
     {
-        var node = SelectedRow!.Node;
-        StatusText = $"Archiving {node.Name} ...";
+        var targets = ActionTargets;
+        StatusText = targets.Count == 1 ? $"Archiving {targets[0].Node.Name} ..." : $"Archiving {targets.Count} items ...";
         try
         {
-            string zip = await Task.Run(() => FileActions.Archive(node.Path));
-            StatusText = $"Archived to {Path.GetFileName(zip)}";
+            foreach (var row in targets)
+                await Task.Run(() => FileActions.Archive(row.Node.Path));
+            StatusText = targets.Count == 1 ? "Archived to .zip." : $"Archived {targets.Count} items to .zip.";
         }
         catch (Exception ex)
         {
@@ -600,7 +629,7 @@ public sealed partial class MainViewModel : ObservableObject
         }
     }
 
-    private bool HasSelection() => SelectedRow is not null;
+    private bool HasSelection() => _selectedRows.Count > 0 || SelectedRow is not null;
 
     // ---------------- Duplicates ----------------
 

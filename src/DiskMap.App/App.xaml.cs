@@ -26,10 +26,8 @@ public partial class App : Application
         MainWindow = main;
         main.Show();
 
-        if (!settings.HasSeenWelcome)
+        if (!settings.SkipWelcomeScreen)
         {
-            settings.HasSeenWelcome = true;
-            settings.Save();
             // Deferred to "Loaded" priority: showing this dialog synchronously, before the main
             // window's HWND/owner relationship has finished settling from Show(), was landing it
             // behind the main window instead of in front of it.

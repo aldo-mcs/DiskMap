@@ -34,6 +34,7 @@
     <infra:PercentageToWidthConverter x:Key="PctToWidth"/>
     <infra:BoolToVisibilityConverter x:Key="BoolToVis"/>
     <infra:BoolToOpacityConverter x:Key="BoolToOpacity"/>
+    <infra:CountToEmptyVisibilityConverter x:Key="EmptyToVis"/>
 
     <sys:Double x:Key="RowFontSize">12.5</sys:Double>
 

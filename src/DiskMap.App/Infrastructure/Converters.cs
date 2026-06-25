@@ -75,3 +75,20 @@ public sealed class BoolToOpacityConverter : IValueConverter
     public object ConvertBack(object value, Type targetType, object? parameter, CultureInfo culture) =>
         throw new NotSupportedException();
 }
+
+/// <summary>Binds a collection's Count (or any int) to Visibility: 0 -> Visible, otherwise Collapsed —
+/// for an empty-state watermark shown only while the backing list has nothing in it.
+/// ConverterParameter="invert" swaps the logic (non-zero -> Visible).</summary>
+public sealed class CountToEmptyVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        int count = value is int i ? i : 0;
+        bool isEmpty = count == 0;
+        if (parameter as string == "invert") isEmpty = !isEmpty;
+        return isEmpty ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    public object ConvertBack(object value, Type targetType, object? parameter, CultureInfo culture) =>
+        throw new NotSupportedException();
+}

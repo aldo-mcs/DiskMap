@@ -5,8 +5,8 @@
 ; "never requires admin to run" design.
 
 #define MyAppName "DiskMap"
-#define MyAppVersion "1.0.0"
-#define MyAppPublisher "aldo-mcs"
+#define MyAppVersion "1.0.1"
+#define MyAppPublisher "Acsoft"
 #define MyAppURL "https://github.com/aldo-mcs/DiskMap"
 #define MyAppExeName "DiskMap.App.exe"
 #define PublishDir "..\src\DiskMap.App\bin\Release\net10.0-windows\win-x64\publish"

@@ -15,9 +15,20 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>diskmap.ico</ApplicationIcon>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Authors>aldo-mcs</Authors>
+    <Company>Acsoft</Company>
+    <Copyright>Copyright © Acsoft</Copyright>
     <Product>DiskMap</Product>
+    <!-- DiskMap has no localized UI strings of its own, so there is no reason to ship the ~25
+         non-English satellite resource assemblies WPF pulls in by default — install-size only. -->
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <!-- No telemetry/crash reporting to symbolicate against, so shipping .pdb files in the
+         installer serves no purpose for end users — install-size only, Debug builds keep symbols. -->
+    <DebugType>none</DebugType>
   </PropertyGroup>
 
   <ItemGroup>

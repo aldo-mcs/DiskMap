@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -26,6 +27,7 @@ public partial class MainWindow : Window
         Treemap.DrillRequested += (_, node) => _vm.DrillInto(node);
         Sunburst.DrillRequested += (_, node) => _vm.DrillInto(node);
         Tree.AddHandler(GridViewColumnHeader.ClickEvent, new RoutedEventHandler(OnHeaderClick));
+        Tree.SelectionChanged += OnTreeSelectionChanged;
 
         InputBindings.Add(new KeyBinding(_vm.ScanFolderCommand, Key.O, ModifierKeys.Control));
         InputBindings.Add(new KeyBinding(_vm.RescanCommand, Key.F5, ModifierKeys.None));
@@ -110,6 +112,12 @@ public partial class MainWindow : Window
 
     private void OnScrollToRow(NodeViewModel row) =>
         Dispatcher.BeginInvoke(() => Tree.ScrollIntoView(row), System.Windows.Threading.DispatcherPriority.Background);
+
+    // ListView doesn't support binding SelectedItems directly (it's read-only), so the full
+    // multi-selection is pushed into the ViewModel here, while SelectedItem stays bound (TwoWay)
+    // for single-node treemap sync.
+    private void OnTreeSelectionChanged(object sender, SelectionChangedEventArgs e) =>
+        _vm.UpdateSelectedRows(Tree.SelectedItems.Cast<NodeViewModel>().ToList());
 
     private void OnShowHistory(string? root)
     {
