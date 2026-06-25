@@ -26,7 +26,16 @@ A fast, no-bloat disk usage analyzer for Windows — a modern alternative to Win
 
 ## Screenshots
 
-_Coming soon._
+| Main Window | Cleanup Tab |
+|-------------|-------------|
+| <img src="https://github.com/user-attachments/assets/8382c600-e880-428b-abb7-68b2ac7965dc" width="450"> | <img src="https://github.com/user-attachments/assets/51910675-c4de-42c7-85dd-f0bb58b10d31" width="450"> |
+
+### History Tab
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/8a2bb02c-2738-431b-9e85-d0d57fe4500b" width="700">
+</p>
+
 
 ## Installing
 
