@@ -32,7 +32,10 @@ public enum ReparseBehavior
 public sealed class AppSettings
 {
     public string Theme { get; set; } = "System";
-    public bool HasSeenWelcome { get; set; }
+
+    /// <summary>When true, the Welcome screen is skipped on startup. Off by default — the Welcome
+    /// screen shows on every launch until the user explicitly checks "Don't show this again".</summary>
+    public bool SkipWelcomeScreen { get; set; }
 
     /// <summary>Thread/I-O throttle mode for recursive scans (Fast/Balanced/Low). MFT scans ignore this.</summary>
     public ScanImpactMode ScanMode { get; set; } = ScanImpactMode.Balanced;

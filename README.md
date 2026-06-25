@@ -2,7 +2,7 @@
 
 A fast, no-bloat disk usage analyzer for Windows — a modern alternative to WinDirStat and WizTree. Scan a drive, see where your space went, and clean it up, all from one utilitarian window.
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue) ![Platform](https://img.shields.io/badge/platform-Windows-0078D6) ![.NET](https://img.shields.io/badge/.NET-10-512BD4)
+![Version](https://img.shields.io/badge/version-1.0.1-blue) ![Platform](https://img.shields.io/badge/platform-Windows-0078D6) ![.NET](https://img.shields.io/badge/.NET-10-512BD4)
 
 ## Why DiskMap
 
@@ -75,4 +75,4 @@ DiskMap is free and independently built by [aldo-mcs](https://github.com/aldo-mc
 
 ## License
 
-Copyright © aldo-mcs. All rights reserved. This is proprietary software — see [LICENSE](LICENSE) for terms. Source is published here for transparency, not for reuse, modification, or redistribution.
+Copyright © Acsoft. All rights reserved. This is proprietary software — see [LICENSE](LICENSE) for terms. Source is published here for transparency, not for reuse, modification, or redistribution.

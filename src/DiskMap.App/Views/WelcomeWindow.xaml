@@ -50,6 +50,9 @@
                 </StackPanel>
 
                 <Button Style="{StaticResource AccentButton}" Content="Get Started" Click="OnClose" Padding="16,7" Margin="0,20,0,0" HorizontalAlignment="Center"/>
+
+                <CheckBox x:Name="DontShowAgainCheck" Content="Don't show this again" HorizontalAlignment="Center" Margin="0,14,0,0"
+                          Foreground="{DynamicResource TextSecondaryBrush}"/>
             </StackPanel>
         </DockPanel>
     </Border>

@@ -56,7 +56,7 @@
                     </StackPanel>
                 </Border>
 
-                <TextBlock Text="Developed by aldo-mcs" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,16,0,0"/>
+                <TextBlock Text="Developed by Acsoft" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,16,0,0"/>
                 <TextBlock Text="Built with .NET 10 / WPF" Foreground="{DynamicResource TextTertiaryBrush}" FontSize="11.5" HorizontalAlignment="Center" Margin="0,4,0,0"/>
             </StackPanel>
         </DockPanel>

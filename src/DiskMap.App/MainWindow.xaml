@@ -245,8 +245,13 @@
                     <Border Grid.Column="0" Style="{StaticResource Card}">
                         <DockPanel>
                             <TextBlock DockPanel.Dock="Top" Text="STORAGE TREE" Style="{StaticResource SectionHeader}" Margin="10,8,10,6"/>
+                            <Grid>
+                            <TextBlock Style="{StaticResource EmptyStateText}"
+                                       Text="No scan yet. Click &quot;Scan Folder&quot; or pick a drive above to get started."
+                                       Visibility="{Binding Rows.Count, Converter={StaticResource EmptyToVis}}"/>
                             <ListView x:Name="Tree" ItemsSource="{Binding Rows}"
                                       SelectedItem="{Binding SelectedRow, Mode=TwoWay}"
+                                      SelectionMode="Extended"
                                       VirtualizingStackPanel.IsVirtualizing="True"
                                       VirtualizingStackPanel.VirtualizationMode="Recycling"
                                       ScrollViewer.HorizontalScrollBarVisibility="Auto">
@@ -350,6 +355,7 @@
                                     </GridView>
                                 </ListView.View>
                             </ListView>
+                            </Grid>
                         </DockPanel>
                     </Border>
 
@@ -359,6 +365,9 @@
                     <Border Grid.Column="2" Style="{StaticResource Card}">
                         <DockPanel>
                             <TextBlock DockPanel.Dock="Top" Text="FILE TYPES" Style="{StaticResource SectionHeader}" Margin="10,8,10,6"/>
+                            <Grid>
+                            <TextBlock Style="{StaticResource EmptyStateText}" Text="No file types to show."
+                                       Visibility="{Binding Extensions.Count, Converter={StaticResource EmptyToVis}}"/>
                             <ListView ItemsSource="{Binding Extensions}">
                                 <ListView.View>
                                     <GridView>
@@ -386,6 +395,7 @@
                                     </GridView>
                                 </ListView.View>
                             </ListView>
+                            </Grid>
                         </DockPanel>
                     </Border>
                 </Grid>
@@ -430,6 +440,8 @@
                                                                  RootNode="{Binding TreemapRoot}"
                                                                  SelectedNode="{Binding TreemapSelectedNode, Mode=TwoWay}"
                                                                  Visibility="{Binding IsSunburstView, Converter={StaticResource BoolToVis}}"/>
+                                        <TextBlock Style="{StaticResource EmptyStateText}" Text="Scan a folder or drive to see the treemap."
+                                                   Visibility="{Binding HasScan, Converter={StaticResource BoolToVis}, ConverterParameter=invert}"/>
                                     </Grid>
                                 </Border>
                             </DockPanel>
@@ -438,6 +450,9 @@
                             <DockPanel Margin="4,0,4,4">
                                 <TextBlock DockPanel.Dock="Top" Margin="8,4,8,6" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"
                                            Text="Run Tools ▸ Find Duplicate Files. Each group keeps the first copy; 'Recycle extras' sends the rest to the Recycle Bin."/>
+                                <Grid>
+                                <TextBlock Style="{StaticResource EmptyStateText}" Text="No duplicate groups yet. Run Tools ▸ Find Duplicate Files to scan this result for duplicates."
+                                           Visibility="{Binding DuplicateGroups.Count, Converter={StaticResource EmptyToVis}}"/>
                                 <ListBox ItemsSource="{Binding DuplicateGroups}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch">
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
@@ -462,6 +477,7 @@
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>
                                 </ListBox>
+                                </Grid>
                             </DockPanel>
                         </TabItem>
                         <TabItem Header="Cleanup">
@@ -481,6 +497,9 @@
                                 </DockPanel>
                                 <ProgressBar DockPanel.Dock="Top" Height="2" Margin="8,0,8,8" IsIndeterminate="True"
                                              Visibility="{Binding IsScanningCleanup, Converter={StaticResource BoolToVis}}"/>
+                                <Grid>
+                                <TextBlock Style="{StaticResource EmptyStateText}" Text="No cleanup categories yet. Click &quot;Scan for Junk&quot; to check for reclaimable space."
+                                           Visibility="{Binding CleanupCategories.Count, Converter={StaticResource EmptyToVis}}"/>
                                 <ListBox ItemsSource="{Binding CleanupCategories}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch">
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
@@ -506,6 +525,7 @@
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>
                                 </ListBox>
+                                </Grid>
                             </DockPanel>
                         </TabItem>
                     </TabControl>
