@@ -1,0 +1,64 @@
+<Window x:Class="DiskMap.App.Views.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="About DiskMap" Height="470" Width="420" Icon="../diskmap.ico"
+        WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False" UseLayoutRounding="True">
+
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="32" ResizeBorderThickness="0" CornerRadius="0" GlassFrameThickness="0" UseAeroCaptionButtons="False"/>
+    </shell:WindowChrome.WindowChrome>
+
+    <Border Background="{DynamicResource BackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+        <DockPanel>
+            <Grid DockPanel.Dock="Top" Height="32" Background="{DynamicResource TitleBarBrush}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="About DiskMap" FontSize="12" FontWeight="SemiBold"
+                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="12,0" VerticalAlignment="Center"/>
+                <Button Grid.Column="1" Style="{StaticResource CloseCaptionButton}" Content="&#xE8BB;" Click="OnClose"
+                        Width="40" Height="32" shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+            </Grid>
+
+            <StackPanel Margin="28,24" HorizontalAlignment="Center">
+                <Image Source="../diskmap.ico" Width="64" Height="64" Margin="0,0,0,14"/>
+                <TextBlock Text="DiskMap" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"/>
+                <TextBlock x:Name="VersionText" Foreground="{DynamicResource TextSecondaryBrush}"
+                           FontFamily="{DynamicResource MonoFont}" HorizontalAlignment="Center" Margin="0,2,0,16"/>
+
+                <TextBlock TextWrapping="Wrap" TextAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,16" MaxWidth="340"
+                           Text="A fast disk usage analyzer for Windows. Direct NTFS $MFT scanning for near-instant whole-drive results (Via 'Elevated' mode), treemap, duplicate detection, scan history, and a built-in cleanup tool."/>
+
+                <Rectangle Height="1" Fill="{DynamicResource BorderSubtleBrush}" Margin="0,0,0,16" Width="280"/>
+
+                <Border Style="{StaticResource Card}" Padding="16,14" Width="320">
+                    <StackPanel>
+                        <TextBlock Text="SUPPORT THIS PROJECT" Style="{StaticResource SectionHeader}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                        <TextBlock Text="DiskMap is free and independently built. Donations help keep it that way." TextWrapping="Wrap" TextAlignment="Center"
+                                   Foreground="{DynamicResource TextSecondaryBrush}" FontSize="11.5" Margin="0,0,0,10"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Click="OnGitHubSponsor" Padding="11,6" Margin="0,0,8,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Style="{StaticResource VectorIcon16}" Data="{StaticResource GitHubIconGeometry}" Fill="{DynamicResource TextPrimaryBrush}" Margin="0,0,7,0"/>
+                                    <TextBlock Text="GitHub Sponsors"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Click="OnStripeDonate" Padding="11,6">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Style="{StaticResource VectorIcon16}" Data="{StaticResource HeartIconGeometry}" Fill="{DynamicResource CoralBrush}" Margin="0,0,7,0"/>
+                                    <TextBlock Text="Donate via Stripe"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Text="Developed by aldo-mcs" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,16,0,0"/>
+                <TextBlock Text="Built with .NET 10 / WPF" Foreground="{DynamicResource TextTertiaryBrush}" FontSize="11.5" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+            </StackPanel>
+        </DockPanel>
+    </Border>
+</Window>

@@ -1,0 +1,19 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Vector icons, kept in lockstep with the standalone files under Assets/icons/*.svg —
+         WPF has no built-in SVG decoder, but its Path "Data" mini-language is the same path
+         grammar as SVG's "d" attribute, so the same coordinates render natively here. -->
+
+    <Geometry x:Key="HeartIconGeometry">M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z</Geometry>
+
+    <Geometry x:Key="GitHubIconGeometry">M12,0.5 C5.73,0.5 0.5,5.73 0.5,12 C0.5,17.08 3.79,21.39 8.36,22.91 C8.94,23.01 9.15,22.66 9.15,22.35 C9.15,22.08 9.14,21.22 9.13,20.31 C5.93,21.01 5.25,18.96 5.25,18.96 C4.72,17.63 3.96,17.27 3.96,17.27 C2.91,16.55 4.04,16.56 4.04,16.56 C5.21,16.64 5.82,17.76 5.82,17.76 C6.85,19.53 8.53,19.02 9.19,18.72 C9.29,17.97 9.59,17.46 9.91,17.17 C7.35,16.88 4.65,15.89 4.65,11.47 C4.65,10.21 5.1,9.18 5.85,8.38 C5.73,8.09 5.33,6.92 5.96,5.33 C5.96,5.33 6.94,5.02 9.16,6.51 C10.08,6.25 11.06,6.12 12.04,6.12 C13.02,6.12 14,6.25 14.92,6.51 C17.14,5.02 18.12,5.33 18.12,5.33 C18.75,6.92 18.35,8.09 18.23,8.38 C18.98,9.18 19.43,10.21 19.43,11.47 C19.43,15.9 16.72,16.88 14.15,17.17 C14.57,17.53 14.94,18.25 14.94,19.34 C14.94,20.91 14.93,22.17 14.93,22.56 C14.93,22.87 15.14,23.23 15.73,23.12 C20.21,21.39 23.5,17.08 23.5,12 C23.5,5.73 18.27,0.5 12,0.5 Z</Geometry>
+
+    <!-- Reusable 16x16 icon Path, color set by the caller via Fill -->
+    <Style x:Key="VectorIcon16" TargetType="Path">
+        <Setter Property="Width" Value="16"/>
+        <Setter Property="Height" Value="16"/>
+        <Setter Property="Stretch" Value="Uniform"/>
+    </Style>
+
+</ResourceDictionary>

@@ -1,0 +1,40 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+                    xmlns:infra="clr-namespace:DiskMap.App.Infrastructure">
+
+    <!-- ===== Palette — muted, low-saturation; color is reserved for data (file types), not chrome ===== -->
+    <Color x:Key="BackgroundColor">#14151A</Color>
+    <SolidColorBrush x:Key="BackgroundBrush" Color="#14151A"/>
+    <SolidColorBrush x:Key="TitleBarBrush" Color="#191A1F"/>
+    <SolidColorBrush x:Key="SurfaceBrush" Color="#1C1D22"/>
+    <SolidColorBrush x:Key="SurfaceAltBrush" Color="#24262C"/>
+    <SolidColorBrush x:Key="BorderBrush" Color="#33353D"/>
+    <SolidColorBrush x:Key="BorderSubtleBrush" Color="#24262C"/>
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#E4E5E8"/>
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#8A8E97"/>
+    <SolidColorBrush x:Key="TextTertiaryBrush" Color="#5A5E66"/>
+    <SolidColorBrush x:Key="AccentBrush" Color="#3E7CB8"/>
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="#4D8CC9"/>
+    <SolidColorBrush x:Key="AccentDeepBrush" Color="#2C5C8C"/>
+    <SolidColorBrush x:Key="SelectionBrush" Color="#22384C"/>
+    <SolidColorBrush x:Key="HoverBrush" Color="#24262C"/>
+    <!-- CoralBrush: warm red, shared by the donation heart icon and History's "grew" indicator —
+         named for its color, not either specific use. ShrinkBrush is growth-indicator-only. -->
+    <SolidColorBrush x:Key="CoralBrush" Color="#D9776E"/>
+    <SolidColorBrush x:Key="ShrinkBrush" Color="#5FA876"/>
+    <SolidColorBrush x:Key="CloseHoverBrush" Color="#C0392B"/>
+
+    <FontFamily x:Key="MonoFont">Consolas</FontFamily>
+
+    <!-- ===== Converters ===== -->
+    <infra:BytesConverter x:Key="Bytes"/>
+    <infra:SignedBytesConverter x:Key="SignedBytes"/>
+    <infra:DepthToMarginConverter x:Key="DepthToMargin"/>
+    <infra:PercentageToWidthConverter x:Key="PctToWidth"/>
+    <infra:BoolToVisibilityConverter x:Key="BoolToVis"/>
+    <infra:BoolToOpacityConverter x:Key="BoolToOpacity"/>
+
+    <sys:Double x:Key="RowFontSize">12.5</sys:Double>
+
+</ResourceDictionary>

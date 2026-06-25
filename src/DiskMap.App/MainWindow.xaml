@@ -1,0 +1,516 @@
+<Window x:Class="DiskMap.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        xmlns:controls="clr-namespace:DiskMap.App.Controls"
+        mc:Ignorable="d"
+        Title="{Binding RootTitle}" Height="780" Width="1280" Icon="diskmap.ico"
+        WindowStyle="None" ResizeMode="CanResize" WindowStartupLocation="CenterScreen"
+        UseLayoutRounding="True">
+
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="34" ResizeBorderThickness="6" CornerRadius="0" GlassFrameThickness="0" UseAeroCaptionButtons="False"/>
+    </shell:WindowChrome.WindowChrome>
+
+    <Border x:Name="RootBorder" Background="{DynamicResource BackgroundBrush}"
+            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+        <DockPanel>
+
+            <!-- ===== Title bar ===== -->
+            <Grid DockPanel.Dock="Top" Height="34" Background="{DynamicResource TitleBarBrush}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="10,0,8,0" VerticalAlignment="Center">
+                    <Image Source="diskmap.ico" Width="16" Height="16" Margin="0,0,7,0"/>
+                    <TextBlock Text="DiskMap" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                </StackPanel>
+
+                <!-- Inline menu -->
+                <Menu Grid.Column="1" VerticalAlignment="Center" shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                    <MenuItem Header="File">
+                        <MenuItem Header="Scan Folder…" Command="{Binding ScanFolderCommand}" InputGestureText="Ctrl+O"/>
+                        <MenuItem Header="Rescan" Command="{Binding RescanCommand}" InputGestureText="F5"/>
+                        <Separator/>
+                        <MenuItem Header="Exit" Click="OnExit"/>
+                    </MenuItem>
+                    <MenuItem Header="Edit">
+                        <MenuItem Header="Copy Path" Command="{Binding CopyPathCommand}"/>
+                        <MenuItem Header="Find / Search" Click="OnFocusSearch" InputGestureText="Ctrl+F"/>
+                    </MenuItem>
+                    <MenuItem Header="Clean Up">
+                        <MenuItem Header="Reveal in Explorer" Command="{Binding RevealCommand}"/>
+                        <MenuItem Header="Open" Command="{Binding OpenCommand}"/>
+                        <MenuItem Header="Open Command Prompt Here" Command="{Binding OpenPromptCommand}"/>
+                        <Separator/>
+                        <MenuItem Header="Compress to .zip" Command="{Binding ArchiveCommand}"/>
+                        <MenuItem Header="Send to Recycle Bin" Command="{Binding RecycleCommand}"/>
+                    </MenuItem>
+                    <MenuItem Header="Tools">
+                        <MenuItem Header="Find Duplicate Files" Command="{Binding FindDuplicatesCommand}"/>
+                        <MenuItem Header="History / What Changed…" Command="{Binding ShowHistoryCommand}"/>
+                        <MenuItem Header="Free Up Space…" Command="{Binding ShowCleanupCommand}"/>
+                        <Separator/>
+                        <MenuItem Header="Settings…" Click="OnShowSettings"/>
+                    </MenuItem>
+                    <MenuItem Header="View">
+                        <MenuItem Header="Advanced Mode" IsCheckable="True" IsChecked="{Binding IsAdvancedMode, Mode=TwoWay}"/>
+                        <MenuItem Header="Theme">
+                            <MenuItem Header="Match System" IsCheckable="True" IsChecked="{Binding IsThemeSystem, Mode=OneWay}" Click="OnThemeSystem"/>
+                            <MenuItem Header="Light" IsCheckable="True" IsChecked="{Binding IsThemeLight, Mode=OneWay}" Click="OnThemeLight"/>
+                            <MenuItem Header="Dark" IsCheckable="True" IsChecked="{Binding IsThemeDark, Mode=OneWay}" Click="OnThemeDark"/>
+                        </MenuItem>
+                    </MenuItem>
+                    <MenuItem Header="Help">
+                        <MenuItem Header="About DiskMap" Click="OnShowAbout"/>
+                        <MenuItem Header="Welcome Screen" Click="OnShowWelcome"/>
+                    </MenuItem>
+                </Menu>
+
+                <!-- Caption buttons -->
+                <StackPanel Grid.Column="3" Orientation="Horizontal" shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Button x:Name="MinButton" Style="{StaticResource CaptionButton}" Content="&#xE921;" Click="OnMinimize" ToolTip="Minimize"/>
+                    <Button x:Name="MaxButton" Style="{StaticResource CaptionButton}" Content="&#xE922;" Click="OnMaximizeRestore" ToolTip="Maximize"/>
+                    <Button x:Name="CloseButton" Style="{StaticResource CloseCaptionButton}" Content="&#xE8BB;" Click="OnExit" ToolTip="Close"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- ===== Toolbar ===== -->
+            <Border DockPanel.Dock="Top" Background="{DynamicResource BackgroundBrush}" Padding="10,8,10,6"
+                    BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,0,1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <Button Style="{StaticResource AccentButton}" Content="Scan Folder" Command="{Binding ScanFolderCommand}"/>
+                        <ItemsControl ItemsSource="{Binding Drives}" VerticalAlignment="Center" Margin="6,0,0,0">
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Content="{Binding}" Margin="3,0,0,0"
+                                            Command="{Binding DataContext.ScanDriveCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                            CommandParameter="{Binding}"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <Rectangle Width="1" Height="20" Fill="{DynamicResource BorderBrush}" Margin="10,0"/>
+                        <Button Content="Rescan" Command="{Binding RescanCommand}" Margin="0,0,4,0"/>
+                        <Button Content="Cancel" Command="{Binding CancelCommand}" Margin="0,0,10,0"/>
+                        <Button Content="Duplicates" Command="{Binding FindDuplicatesCommand}" Margin="0,0,4,0"/>
+                        <Button Content="History" Command="{Binding ShowHistoryCommand}" Margin="0,0,4,0"/>
+                        <Button Content="Cleanup" Command="{Binding ShowCleanupCommand}" Margin="0,0,4,0"/>
+                        <Button Content="Settings" Click="OnShowSettings" Margin="0,0,10,0"/>
+                        <ToggleButton Style="{StaticResource ToggleChip}" Content="Advanced" IsChecked="{Binding IsAdvancedMode, Mode=TwoWay}"
+                                      ToolTip="Show technical detail: timestamps, attributes, slack space, filesystem and scan engine info"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                        <Button Content="Run Elevated" Margin="0,0,10,0" Command="{Binding RestartAsAdminCommand}"
+                                Visibility="{Binding IsElevated, Converter={StaticResource BoolToVis}, ConverterParameter=invert}"
+                                ToolTip="Restart as Administrator to enable direct NTFS $MFT scanning of whole drives (reads the file table directly instead of walking folders)."/>
+
+                        <ToggleButton x:Name="FiltersToggle" Style="{StaticResource ToggleChip}" Margin="0,0,6,0"
+                                      IsChecked="{Binding IsFiltersOpen, Mode=TwoWay}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Filters"/>
+                                <Ellipse Width="6" Height="6" Margin="6,0,0,0" Fill="{DynamicResource AccentBrush}"
+                                         Visibility="{Binding HasActiveFilters, Converter={StaticResource BoolToVis}}"/>
+                            </StackPanel>
+                        </ToggleButton>
+                        <Popup IsOpen="{Binding IsFiltersOpen, Mode=TwoWay}" PlacementTarget="{Binding ElementName=FiltersToggle}"
+                               Placement="Bottom" HorizontalOffset="-205" StaysOpen="True" AllowsTransparency="True" PopupAnimation="Fade">
+                            <Border Background="{DynamicResource SurfaceAltBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                    CornerRadius="2" Padding="12" Width="280">
+                                <Border.Effect><DropShadowEffect BlurRadius="14" ShadowDepth="2" Opacity="0.5" Color="#000000"/></Border.Effect>
+                                <StackPanel>
+                                    <TextBlock Text="SIZE RANGE (MB)" Style="{StaticResource SectionHeader}" Margin="0,0,0,6"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox Grid.Column="0" Text="{Binding MinSizeText, UpdateSourceTrigger=PropertyChanged, Delay=300}"
+                                                 ToolTip="Minimum size, e.g. 100MB or 1.5GB"/>
+                                        <TextBlock Grid.Column="1" Text="–" Margin="6,0" VerticalAlignment="Center"/>
+                                        <TextBox Grid.Column="2" Text="{Binding MaxSizeText, UpdateSourceTrigger=PropertyChanged, Delay=300}"
+                                                 ToolTip="Maximum size, e.g. 2GB"/>
+                                    </Grid>
+
+                                    <TextBlock Text="FILE TYPE" Style="{StaticResource SectionHeader}" Margin="0,14,0,6"/>
+                                    <ListBox ItemsSource="{Binding Extensions}" MaxHeight="220" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" Padding="6,3" HorizontalContentAlignment="Stretch">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Text="{Binding Extension}"/>
+                                                        <TextBlock Grid.Column="1" Text="{Binding SizeText}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="10,0,0,0"/>
+                                                    </Grid>
+                                                </CheckBox>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+
+                                    <Button Content="Clear Filters" Command="{Binding ClearFiltersCommand}" Margin="0,12,0,0" HorizontalAlignment="Stretch"/>
+                                </StackPanel>
+                            </Border>
+                        </Popup>
+
+                        <TextBox x:Name="SearchBox" Width="220" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
+                                 VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ===== Status strip (dense, monospace) ===== -->
+            <Border DockPanel.Dock="Top" Background="{DynamicResource TitleBarBrush}" Padding="12,5"
+                    BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,0,1"
+                    Visibility="{Binding HasScan, Converter={StaticResource BoolToVis}}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="SIZE" Style="{StaticResource SectionHeader}" Margin="0,0,5,0"/>
+                        <TextBlock Text="{Binding TotalSizeText}" FontFamily="{DynamicResource MonoFont}" FontWeight="Bold" Margin="0,0,16,0"/>
+                        <TextBlock Text="FILES" Style="{StaticResource SectionHeader}" Margin="0,0,5,0"/>
+                        <TextBlock Text="{Binding FileCountText}" FontFamily="{DynamicResource MonoFont}" Margin="0,0,16,0"/>
+                        <TextBlock Text="ON DISK" Style="{StaticResource SectionHeader}" Margin="0,0,5,0"/>
+                        <TextBlock Text="{Binding OnDiskText}" FontFamily="{DynamicResource MonoFont}" Margin="0,0,16,0"/>
+                        <TextBlock Text="LARGEST" Style="{StaticResource SectionHeader}" Margin="0,0,5,0"/>
+                        <TextBlock Text="{Binding LargestText}" FontFamily="{DynamicResource MonoFont}" TextTrimming="CharacterEllipsis" MaxWidth="300"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0" Visibility="{Binding IsAdvancedMode, Converter={StaticResource BoolToVis}}">
+                        <TextBlock Text="ENGINE" Style="{StaticResource SectionHeader}" Margin="0,0,5,0"/>
+                        <TextBlock Text="{Binding ScanMethodText}" FontFamily="{DynamicResource MonoFont}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,16,0"/>
+                        <TextBlock Text="SCAN TIME" Style="{StaticResource SectionHeader}" Margin="0,0,5,0"/>
+                        <TextBlock Text="{Binding ScanTimeText}" FontFamily="{DynamicResource MonoFont}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,16,0"/>
+                        <TextBlock Text="SLACK" Style="{StaticResource SectionHeader}" Margin="0,0,5,0"/>
+                        <TextBlock Text="{Binding SlackText}" FontFamily="{DynamicResource MonoFont}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,16,0"/>
+                        <TextBlock Text="FILESYSTEM" Style="{StaticResource SectionHeader}" Margin="0,0,5,0"/>
+                        <TextBlock Text="{Binding FilesystemText}" FontFamily="{DynamicResource MonoFont}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,16,0"/>
+                        <TextBlock Text="CLUSTER" Style="{StaticResource SectionHeader}" Margin="0,0,5,0"/>
+                        <TextBlock Text="{Binding ClusterSizeText}" FontFamily="{DynamicResource MonoFont}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,16,0"/>
+                        <TextBlock Text="VOLUME" Style="{StaticResource SectionHeader}" Margin="0,0,5,0"/>
+                        <TextBlock Text="{Binding VolumeCapacityText}" FontFamily="{DynamicResource MonoFont}" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0" Visibility="{Binding IsAdvancedMode, Converter={StaticResource BoolToVis}}">
+                        <TextBlock Text="$MFT" Style="{StaticResource SectionHeader}" Margin="0,0,5,0"/>
+                        <TextBlock Text="{Binding MftDiagnosticsText}" FontFamily="{DynamicResource MonoFont}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,16,0"/>
+                        <TextBlock Text="ENGINE" Style="{StaticResource SectionHeader}" Margin="0,0,5,0"/>
+                        <TextBlock Text="{Binding EngineDiagnosticsText}" FontFamily="{DynamicResource MonoFont}" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Status bar ===== -->
+            <Border DockPanel.Dock="Bottom" Background="{DynamicResource TitleBarBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,1,0,0">
+                <Grid Margin="12,5">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="{Binding StatusText}" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    <ProgressBar Grid.Column="1" Width="150" Margin="14,0" IsIndeterminate="True"
+                                 Visibility="{Binding IsScanning, Converter={StaticResource BoolToVis}}"/>
+                    <TextBlock Grid.Column="2" Text="{Binding ProgressText}" Foreground="{DynamicResource TextTertiaryBrush}" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Grid.Column="3" Text="{Binding TotalsText}" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                </Grid>
+            </Border>
+
+            <!-- ===== Main content ===== -->
+            <Grid Margin="6,6,6,6">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="3*" MinHeight="160"/>
+                    <RowDefinition Height="6"/>
+                    <RowDefinition Height="2*" MinHeight="160"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MinWidth="420"/>
+                        <ColumnDefinition Width="6"/>
+                        <ColumnDefinition Width="360" MinWidth="240"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Storage tree card -->
+                    <Border Grid.Column="0" Style="{StaticResource Card}">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Text="STORAGE TREE" Style="{StaticResource SectionHeader}" Margin="10,8,10,6"/>
+                            <ListView x:Name="Tree" ItemsSource="{Binding Rows}"
+                                      SelectedItem="{Binding SelectedRow, Mode=TwoWay}"
+                                      VirtualizingStackPanel.IsVirtualizing="True"
+                                      VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                      ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                                <ListView.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Reveal in Explorer" Command="{Binding RevealCommand}"/>
+                                        <MenuItem Header="Open" Command="{Binding OpenCommand}"/>
+                                        <MenuItem Header="Open Command Prompt Here" Command="{Binding OpenPromptCommand}"/>
+                                        <MenuItem Header="Copy Path" Command="{Binding CopyPathCommand}"/>
+                                        <Separator/>
+                                        <MenuItem Header="Compress to .zip" Command="{Binding ArchiveCommand}"/>
+                                        <MenuItem Header="Send to Recycle Bin" Command="{Binding RecycleCommand}"/>
+                                    </ContextMenu>
+                                </ListView.ContextMenu>
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Name" Width="280">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal" Margin="{Binding Depth, Converter={StaticResource DepthToMargin}}">
+                                                        <Grid Width="16">
+                                                            <ToggleButton Style="{StaticResource ExpanderToggle}"
+                                                                          IsChecked="{Binding IsExpanded, Mode=TwoWay}"
+                                                                          Visibility="{Binding HasChildren, Converter={StaticResource BoolToVis}}"/>
+                                                        </Grid>
+                                                        <Rectangle Width="10" Height="10" Margin="2,0,7,0" Fill="{Binding TypeBrush}"/>
+                                                        <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis"/>
+                                                        <TextBlock Text="junction" Margin="6,0,0,0" FontSize="10.5" FontStyle="Italic"
+                                                                   Foreground="{DynamicResource TextTertiaryBrush}"
+                                                                   Visibility="{Binding IsReparsePoint, Converter={StaticResource BoolToVis}}"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Subtree" Width="110">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Border Width="92" Height="9" HorizontalAlignment="Left" Background="#1FFFFFFF">
+                                                        <Rectangle HorizontalAlignment="Left" Fill="{Binding TypeBrush}"
+                                                                   Width="{Binding Percentage, Converter={StaticResource PctToWidth}, ConverterParameter=92}"/>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="%" Width="55">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate><TextBlock Text="{Binding Percentage, StringFormat={}{0:N1}%}" FontFamily="{DynamicResource MonoFont}" HorizontalAlignment="Right"/></DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Size" Width="90">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate><TextBlock Text="{Binding Size, Converter={StaticResource Bytes}}" FontFamily="{DynamicResource MonoFont}" HorizontalAlignment="Right"/></DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="On Disk" Width="90">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate><TextBlock Text="{Binding Allocated, Converter={StaticResource Bytes}}" FontFamily="{DynamicResource MonoFont}" HorizontalAlignment="Right" Foreground="{DynamicResource TextSecondaryBrush}"/></DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Files" Width="65">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate><TextBlock Text="{Binding Files, StringFormat={}{0:N0}}" FontFamily="{DynamicResource MonoFont}" HorizontalAlignment="Right"/></DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Modified" Width="125">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate><TextBlock Text="{Binding LastModified, StringFormat=yyyy-MM-dd HH:mm}" FontFamily="{DynamicResource MonoFont}" Foreground="{DynamicResource TextSecondaryBrush}"/></DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Created" Width="125"
+                                                        x:Name="CreatedColumn">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate><TextBlock Text="{Binding Created, StringFormat=yyyy-MM-dd HH:mm}" FontFamily="{DynamicResource MonoFont}" Foreground="{DynamicResource TextSecondaryBrush}"/></DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Attr" Width="55" x:Name="AttrColumn">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate><TextBlock Text="{Binding AttributesText}" FontFamily="{DynamicResource MonoFont}" Foreground="{DynamicResource TextSecondaryBrush}"/></DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Slack" Width="80" x:Name="SlackColumn">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate><TextBlock Text="{Binding Slack, Converter={StaticResource Bytes}}" FontFamily="{DynamicResource MonoFont}" HorizontalAlignment="Right" Foreground="{DynamicResource TextTertiaryBrush}"/></DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="MFT #" Width="75" x:Name="MftIndexColumn">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate><TextBlock Text="{Binding MftIndexText}" FontFamily="{DynamicResource MonoFont}" HorizontalAlignment="Right" Foreground="{DynamicResource TextTertiaryBrush}"/></DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Links" Width="50" x:Name="HardLinksColumn">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate><TextBlock Text="{Binding HardLinksText}" FontFamily="{DynamicResource MonoFont}" HorizontalAlignment="Right" Foreground="{DynamicResource TextTertiaryBrush}"/></DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Streams" Width="60" x:Name="StreamsColumn">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate><TextBlock Text="{Binding StreamsText}" FontFamily="{DynamicResource MonoFont}" HorizontalAlignment="Right" Foreground="{DynamicResource TextTertiaryBrush}"/></DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </DockPanel>
+                    </Border>
+
+                    <GridSplitter Grid.Column="1" Width="6" HorizontalAlignment="Stretch" Background="Transparent"/>
+
+                    <!-- File types card -->
+                    <Border Grid.Column="2" Style="{StaticResource Card}">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Text="FILE TYPES" Style="{StaticResource SectionHeader}" Margin="10,8,10,6"/>
+                            <ListView ItemsSource="{Binding Extensions}">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="" Width="22">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate><Rectangle Width="10" Height="10" Fill="{Binding Brush}"/></DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Type" Width="92" DisplayMemberBinding="{Binding Extension}"/>
+                                        <GridViewColumn Header="Size" Width="80">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate><TextBlock Text="{Binding SizeText}" FontFamily="{DynamicResource MonoFont}" HorizontalAlignment="Right"/></DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="%" Width="55">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate><TextBlock Text="{Binding PercentText}" FontFamily="{DynamicResource MonoFont}" HorizontalAlignment="Right" Foreground="{DynamicResource TextSecondaryBrush}"/></DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Files" Width="60">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate><TextBlock Text="{Binding FileCount, StringFormat={}{0:N0}}" FontFamily="{DynamicResource MonoFont}" HorizontalAlignment="Right"/></DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </DockPanel>
+                    </Border>
+                </Grid>
+
+                <GridSplitter Grid.Row="1" Height="6" HorizontalAlignment="Stretch" Background="Transparent"/>
+
+                <!-- Treemap / duplicates card -->
+                <Border Grid.Row="2" Style="{StaticResource Card}">
+                    <TabControl SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}">
+                        <TabItem Header="Treemap">
+                            <DockPanel Margin="4,0,4,4">
+                                <DockPanel DockPanel.Dock="Top" Margin="6,2,6,4" LastChildFill="False">
+                                    <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                                        <ToggleButton Style="{StaticResource ToggleChip}" Content="Treemap" Padding="9,3"
+                                                      IsChecked="{Binding IsTreemapView, Mode=OneWay}"
+                                                      Click="OnSelectTreemapView"/>
+                                        <ToggleButton Style="{StaticResource ToggleChip}" Content="Sunburst" Padding="9,3" Margin="4,0,0,0"
+                                                      IsChecked="{Binding IsSunburstView, Mode=OneWay}"
+                                                      Click="OnSelectSunburstView"/>
+                                    </StackPanel>
+                                    <ItemsControl Margin="10,0,0,0" ItemsSource="{Binding Breadcrumb}">
+                                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Button Content="{Binding Name}" Padding="6,2" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource AccentBrush}"
+                                                            Command="{Binding DataContext.NavigateBreadcrumbCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            CommandParameter="{Binding}"/>
+                                                    <TextBlock Text="›" Margin="2,0" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </DockPanel>
+                                <Border ClipToBounds="True">
+                                    <Grid>
+                                        <controls:TreemapControl x:Name="Treemap"
+                                                                 RootNode="{Binding TreemapRoot}"
+                                                                 SelectedNode="{Binding TreemapSelectedNode, Mode=TwoWay}"
+                                                                 Visibility="{Binding IsSunburstView, Converter={StaticResource BoolToVis}, ConverterParameter=invert}"/>
+                                        <controls:SunburstControl x:Name="Sunburst"
+                                                                 RootNode="{Binding TreemapRoot}"
+                                                                 SelectedNode="{Binding TreemapSelectedNode, Mode=TwoWay}"
+                                                                 Visibility="{Binding IsSunburstView, Converter={StaticResource BoolToVis}}"/>
+                                    </Grid>
+                                </Border>
+                            </DockPanel>
+                        </TabItem>
+                        <TabItem Header="Duplicate Files">
+                            <DockPanel Margin="4,0,4,4">
+                                <TextBlock DockPanel.Dock="Top" Margin="8,4,8,6" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"
+                                           Text="Run Tools ▸ Find Duplicate Files. Each group keeps the first copy; 'Recycle extras' sends the rest to the Recycle Bin."/>
+                                <ListBox ItemsSource="{Binding DuplicateGroups}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{DynamicResource SurfaceAltBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="1" Margin="4,3" Padding="10">
+                                                <StackPanel>
+                                                    <DockPanel>
+                                                        <Button DockPanel.Dock="Right" Style="{StaticResource AccentButton}" Content="Recycle extras" Padding="9,4"
+                                                                Command="{Binding DataContext.RecycleDuplicatesCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"/>
+                                                        <TextBlock Text="{Binding Header}" FontWeight="SemiBold"/>
+                                                    </DockPanel>
+                                                    <ItemsControl ItemsSource="{Binding Paths}" Margin="0,6,0,0">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <TextBlock Text="{Binding}" FontFamily="{DynamicResource MonoFont}" FontSize="11.5"
+                                                                           Foreground="{DynamicResource TextSecondaryBrush}" TextTrimming="CharacterEllipsis" Margin="0,1"/>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </DockPanel>
+                        </TabItem>
+                        <TabItem Header="Cleanup">
+                            <DockPanel Margin="4,0,4,4">
+                                <DockPanel DockPanel.Dock="Top" Margin="8,4,8,8" LastChildFill="False">
+                                    <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Top">
+                                        <Button Content="Scan for Junk" Command="{Binding ScanForJunkCommand}" Margin="0,0,6,0"/>
+                                        <Button Style="{StaticResource AccentButton}" Content="Clean Selected" Command="{Binding CleanSelectedCommand}"/>
+                                    </StackPanel>
+                                    <StackPanel DockPanel.Dock="Left" MaxWidth="650" Margin="14,0,0,0">
+                                        <TextBlock Text="{Binding CleanupStatusText}" TextWrapping="Wrap"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0" Visibility="{Binding IsScanningCleanup, Converter={StaticResource BoolToVis}, ConverterParameter=invert}">
+                                            <TextBlock Text="RECLAIMABLE (SELECTED)" Style="{StaticResource SectionHeader}" Margin="0,0,6,0"/>
+                                            <TextBlock Text="{Binding CleanupTotalText}" FontFamily="{DynamicResource MonoFont}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </DockPanel>
+                                <ProgressBar DockPanel.Dock="Top" Height="2" Margin="8,0,8,8" IsIndeterminate="True"
+                                             Visibility="{Binding IsScanningCleanup, Converter={StaticResource BoolToVis}}"/>
+                                <ListBox ItemsSource="{Binding CleanupCategories}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{DynamicResource SurfaceAltBrush}" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="1" Margin="4,3" Padding="10">
+                                                <Grid Opacity="{Binding IsEmpty, Converter={StaticResource BoolToOpacity}}">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,0,10,0"
+                                                              IsEnabled="{Binding IsEmpty, Converter={StaticResource BoolToVis}, ConverterParameter=invert}"/>
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                                        <TextBlock Text="{Binding Description}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="11.5" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                                        <TextBlock Text="{Binding SizeText}" FontFamily="{DynamicResource MonoFont}" FontWeight="Bold" HorizontalAlignment="Right"/>
+                                                        <TextBlock Text="{Binding FileCountText}" Foreground="{DynamicResource TextTertiaryBrush}" FontSize="11" HorizontalAlignment="Right"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </DockPanel>
+                        </TabItem>
+                    </TabControl>
+                </Border>
+            </Grid>
+        </DockPanel>
+    </Border>
+</Window>

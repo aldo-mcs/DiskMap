@@ -1,0 +1,15 @@
+[Bb]in/
+[Oo]bj/
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Installer build output (the Inno Setup *script* is tracked; its generated EXE isn't)
+installer/Output/
+
+# Local dev/test artifacts that don't belong in source control
+screenshot_*.png
+nul
+*.ckpt

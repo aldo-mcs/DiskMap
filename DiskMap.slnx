@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DiskMap.App/DiskMap.App.csproj" />
+    <Project Path="src/DiskMap.Core/DiskMap.Core.csproj" />
+    <Project Path="src/DiskMap.Tests/DiskMap.Tests.csproj" />
+  </Folder>
+</Solution>

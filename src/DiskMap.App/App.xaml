@@ -1,0 +1,7 @@
+﻿<Application x:Class="DiskMap.App.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:DiskMap.App">
+    <!-- No StartupUri / no static theme merge here: App.xaml.cs applies the saved (or system)
+         theme first, then shows MainWindow, so nothing renders with the wrong palette. -->
+</Application>
